@@ -9,8 +9,12 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = {extras = ["standard"], version = "^0.112.2"}
-SQLAlchemy = "^2.0.32"
+SQLAlchemy = {extras = ["asyncio"], version = "^2.0.32"}
+psycopg2 = "^2.9.9"
 
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.8.0"
 
 [build-system]
 requires = ["poetry-core"]
