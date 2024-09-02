@@ -2,6 +2,7 @@ import os
 from collections.abc import Iterator
 
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import Session, sessionmaker
 
 from lib_api.models import Base
@@ -11,7 +12,6 @@ POSTGRES_PASS = os.getenv("POSTGRES_PASSWORD")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST")
 POSTGRES_DBNAME = os.getenv("POSTGRES_DB")
 
-from sqlalchemy.engine import URL
 
 url = URL.create(
     drivername="postgresql+psycopg2",
