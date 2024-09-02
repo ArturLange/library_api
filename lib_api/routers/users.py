@@ -17,7 +17,6 @@ async def get_users(
 @router.post("/", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 async def add_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_id(db, user_id=user.id)
-    print(db_user, user.id)
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

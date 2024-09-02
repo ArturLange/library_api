@@ -36,7 +36,6 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     db_user = models.User(**user.model_dump())
-    print(db_user)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -69,3 +68,12 @@ def create_borrowing(
     db.refresh(db_book)
     db.refresh(db_borrowing)
     return db_book, db_borrowing
+
+
+def get_borrowing(db: Session, book_id: str):
+    return (
+        db.query(models.Borrowing)
+        .filter(models.Borrowing.end_time == None)
+        .filter(models.Borrowing.book_id == book_id)
+        .first()
+    )

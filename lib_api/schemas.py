@@ -1,5 +1,6 @@
-from datetime import datetime
-from pydantic import BaseModel, field_validator
+from datetime import UTC, datetime
+
+from pydantic import BaseModel, computed_field, field_validator
 
 
 def numeric_id_check(value: str) -> str:
@@ -35,7 +36,7 @@ class UserBase(BaseModel):
     @field_validator("id")
     @classmethod
     def id_check(cls, value: str) -> str:
-        numeric_id_check(value)
+        return numeric_id_check(value)
 
 
 class User(UserBase):
@@ -51,10 +52,15 @@ class UserCreate(UserBase):
 class BorrowingBase(BaseModel):
     start_time: datetime | None = None
     end_time: datetime | None = None
+    user_id: str | None = None
 
+    class Config:
+        from_attributes = True
+
+    @computed_field
     @property
     def is_active(self) -> bool:
-        return not self.end_time or self.end_time > datetime.now()
+        return self.end_time is None or self.end_time > datetime.now(UTC)
 
 
 class BorrowingCreate(BorrowingBase):
@@ -66,5 +72,14 @@ class BorrowingCreate(BorrowingBase):
         return numeric_id_check(value)
 
 
-class BookWithBorrowings(BookBase):
+class BookWithBorrowings(Book):
     borrowings: list[BorrowingBase]
+
+    @computed_field
+    @property
+    def is_currently_borrowed(self) -> bool:
+        return any(borrowing.is_active for borrowing in self.borrowings)
+
+
+class BookReturn(BaseModel):
+    end_time: datetime | None = None
