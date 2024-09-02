@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, field_validator
 
 
@@ -45,3 +46,25 @@ class User(UserBase):
 
 class UserCreate(UserBase):
     pass
+
+
+class BorrowingBase(BaseModel):
+    start_time: datetime | None = None
+    end_time: datetime | None = None
+
+    @property
+    def is_active(self) -> bool:
+        return not self.end_time or self.end_time > datetime.now()
+
+
+class BorrowingCreate(BorrowingBase):
+    user_id: str
+
+    @field_validator("user_id")
+    @classmethod
+    def user_id_check(cls, value: str) -> str:
+        return numeric_id_check(value)
+
+
+class BookWithBorrowings(BookBase):
+    borrowings: list[BorrowingBase]

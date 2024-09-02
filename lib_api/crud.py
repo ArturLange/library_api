@@ -36,6 +36,7 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def create_user(db: Session, user: schemas.UserCreate) -> models.User:
     db_user = models.User(**user.model_dump())
+    print(db_user)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -50,3 +51,21 @@ def delete_user(db: Session, user_id: str) -> None:
     db_user = get_user_by_id(db, user_id)
     db.delete(db_user)
     db.commit()
+
+
+# BORROWINGS
+
+
+def create_borrowing(
+    db: Session, borrowing: schemas.BorrowingBase, book_id: str
+) -> models.Borrowing:
+    db_borrowing = models.Borrowing(**borrowing.model_dump())
+    db_user = get_user_by_id(db, borrowing.user_id)
+    db_book = get_book_by_id(db, book_id)
+    db_borrowing.user = db_user
+    db_borrowing.book = db_book
+    db.add(db_borrowing)
+    db.commit()
+    db.refresh(db_book)
+    db.refresh(db_borrowing)
+    return db_book, db_borrowing

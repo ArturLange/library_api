@@ -7,11 +7,12 @@ from lib_api.db import get_db
 router = APIRouter()
 
 
-@router.get("/", response_model=list[schemas.Book])
+@router.get("/", response_model=list[schemas.BookWithBorrowings])
 async def get_books(
     skip: int | None = None, limit: int | None = None, db: Session = Depends(get_db)
 ):
-    return crud.get_books(db, skip=skip, limit=limit)
+    db_books = crud.get_books(db, skip=skip, limit=limit)
+    return db_books
 
 
 @router.post("/", response_model=schemas.Book, status_code=status.HTTP_201_CREATED)
@@ -40,3 +41,16 @@ async def delete_book(book_id: str, db: Session = Depends(get_db)):
     crud.delete_book(db, book_id=book_id)
 
     return Response(status_code=204)
+
+
+@router.post(
+    "/{book_id}/borrow",
+    response_model=schemas.Book,
+    status_code=status.HTTP_201_CREATED,
+)
+async def borrow_book(
+    book_id: str, borrowing_data: schemas.BorrowingCreate, db: Session = Depends(get_db)
+):
+    db_book, _ = crud.create_borrowing(db, borrowing_data, book_id)
+
+    return db_book
